@@ -330,4 +330,24 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Minesweeper", "Mine locations: " + mineLocations.toString());
     }
 
+
+
+    private void startTime() {
+        final TextView timeView = (TextView) findViewById(R.id.timer);
+
+        timerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                int seconds = timeCount;
+                String time = String.format("%02d", seconds);
+                timeView.setText(time);
+
+                timeCount++;
+                handler.postDelayed(this, 1000);
+            }
+        };
+
+        handler.post(timerRunnable);
+    }
+
 }
