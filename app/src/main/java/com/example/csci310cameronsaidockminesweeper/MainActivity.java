@@ -162,4 +162,30 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    private int findProximity(int n) {
+        int proximity = 0;
+
+        int i = n / 10;
+        int j = n % 10;
+
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                if (x == 0 && y == 0) {
+                    continue;
+                }
+
+                int i2 = i + x;
+                int j2 = j + y;
+
+                if (i2 >= 0 && i2 < 12 && j2 >= 0 && j2 < 10) {
+                    if (isMine(i2 * 10 + j2)) {
+                        proximity++;
+                    }
+                }
+            }
+        }
+
+        return proximity;
+    }
+
 }
