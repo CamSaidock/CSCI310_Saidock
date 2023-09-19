@@ -314,4 +314,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onClickButton(View view) {
+        isFlagging = !isFlagging;
+        toggle.setText(isFlagging ? R.string.flag : R.string.pick);
+    }
+
+    public void randomizeMines() {
+        Random random = new Random();
+        while(mineLocations.size() < 4) {
+            int minePlacement = random.nextInt(121);
+            if(!isMine(minePlacement)) {
+                mineLocations.add(minePlacement);
+            }
+        }
+        Log.d("Minesweeper", "Mine locations: " + mineLocations.toString());
+    }
+
 }
