@@ -188,4 +188,130 @@ public class MainActivity extends AppCompatActivity {
         return proximity;
     }
 
+    private void findNearbyZeros(int n) {
+        if (n < 0 || n >= 120 || isMine(n) || gridText.get(n).getCurrentTextColor() == Color.LTGRAY) {
+            return;
+        }
+
+        int proximity = Integer.parseInt((String) gridText.get(n).getText());
+
+        if (proximity == 0) {
+            gridText.get(n).setBackgroundColor(Color.GRAY);
+            gridText.get(n).setTextColor(Color.LTGRAY);
+
+            if (n % 10 != 0) { //Make sure it isn't left-most border
+                findNearbyZeros(n - 1);
+            }
+
+            if (n % 10 != 9) { //Make sure it isn't right-most border
+                findNearbyZeros(n + 1);
+            }
+
+            findNearbyZeros(n + 10);
+            findNearbyZeros(n - 10);
+
+            //Edge cases to make sure it doesn't go into next area
+
+            if (n % 10 != 0 && n >= 11) {
+                findNearbyZeros(n - 11);
+            }
+
+            if (n % 10 != 9 && n >= 11) {
+                findNearbyZeros(n - 9);
+            }
+
+            if (n % 10 != 0 && n <= 108) {
+                findNearbyZeros(n + 9);
+            }
+
+            if (n % 10 != 9 && n <= 108) {
+                findNearbyZeros(n + 11);
+            }
+        }
+    }
+
+    private int countTotal() {
+        int total = 0;
+        for (int n = 0; n < gridText.size(); n++) {
+            if (gridText.get(n).getCurrentTextColor() == Color.LTGRAY) {
+                total += 1;
+            }
+        }
+
+        return total;
+    }
+
+    public void onClickTV(View view){
+        TextView tv = (TextView) view;
+        int n = findIndexOfCellTextView(tv);
+        if(didFail) {
+            tv.setTextColor(Color.WHITE);
+            tv.setBackgroundColor(Color.RED);
+            setContentView(R.layout.activity_result);
+
+            TimeTook = findViewById(R.id.TimeTook);
+            TimeTook.setText("Used " + String.valueOf(timeCount) + " seconds.");
+
+            Decision = findViewById(R.id.Decision);
+            Decision.setText("You lost.");
+
+            Encouragement = findViewById(R.id.Encouragement);
+            Encouragement.setText("Better luck next time!");
+
+            Button playAgainButton = findViewById(R.id.playAgain);
+            playAgainButton.setOnClickListener(this::restartGame);
+        }
+        if(!isFlagging) {
+            if (!isMine(n)) {
+                int proximity = findProximity(n);
+                if(proximity == 0) {
+                    findNearbyZeros(n);
+                }
+                tv.setText(String.valueOf(proximity));
+                if (tv.getCurrentTextColor() == Color.GREEN || tv.getCurrentTextColor() == Color.BLUE) {
+                    if(tv.getCurrentTextColor() == Color.BLUE) {
+                        NumFlags += 1;
+                        count.setText(String.valueOf(NumFlags));
+                    }
+                    tv.setTextColor(Color.LTGRAY);
+                    tv.setBackgroundColor(Color.GRAY);
+                }
+                if (countTotal() == 116) { //Win condition
+                    setContentView(R.layout.activity_result);
+
+                    TimeTook = findViewById(R.id.TimeTook);
+                    TimeTook.setText("Used " + String.valueOf(timeCount) + " seconds.");
+
+                    Decision = findViewById(R.id.Decision);
+                    Decision.setText("You won.");
+
+                    Encouragement = findViewById(R.id.Encouragement);
+                    Encouragement.setText("Good job!");
+
+                    Button playAgainButton = findViewById(R.id.playAgain);
+                    playAgainButton.setOnClickListener(this::restartGame);
+                }
+            } else if (isMine(n)) {
+                tv.setText(R.string.mine);
+                didFail = true;
+                handler.removeCallbacks(timerRunnable);
+            }
+        }
+
+        else if(isFlagging) {
+            if(tv.getCurrentTextColor() == Color.GREEN) {
+                if(NumFlags != 0) {
+                    tv.setText(R.string.flag);
+                    tv.setTextColor(Color.BLUE);
+                    NumFlags--;
+                }
+            } else if(tv.getText().equals(getString(R.string.flag))) {
+                tv.setText(String.valueOf(initialNumbers.get(n)));
+                tv.setTextColor(Color.GREEN);
+                NumFlags++;
+            }
+            count.setText(String.valueOf(NumFlags));
+        }
+    }
+
 }
